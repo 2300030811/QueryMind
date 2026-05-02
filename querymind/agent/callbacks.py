@@ -150,12 +150,17 @@ class QueryMindCallback(BaseCallback):
     def _on_training_end(self) -> None:
         """Log final summary metrics."""
         if self._episode_ratios:
+            # Filter out inf/nan values for clean aggregation
+            clean_ratios = np.array(self._episode_ratios)
+            finite_mask = np.isfinite(clean_ratios)
+            clean_ratios = clean_ratios[finite_mask]
+
             final_metrics = {
-                "final/mean_ratio": float(np.mean(self._episode_ratios)),
-                "final/median_ratio": float(np.median(self._episode_ratios)),
+                "final/mean_ratio": float(np.mean(clean_ratios)) if len(clean_ratios) > 0 else 0.0,
+                "final/median_ratio": float(np.median(clean_ratios)) if len(clean_ratios) > 0 else 0.0,
                 "final/win_rate": float(
-                    np.mean(np.array(self._episode_ratios) > 1.0)
-                ),
+                    np.mean(clean_ratios > 1.0)
+                ) if len(clean_ratios) > 0 else 0.0,
                 "final/total_episodes": self._episode_count,
             }
             logger.info(f"Training complete: {final_metrics}")
@@ -175,12 +180,17 @@ class QueryMindCallback(BaseCallback):
                 f.write("query_id,mean_ratio,median_ratio,n_episodes,win_rate\n")
                 for qid, ratios in sorted(self._query_performance.items()):
                     arr = np.array(ratios)
+                    # Filter out inf/nan values to prevent corrupted stats
+                    finite_arr = arr[np.isfinite(arr)]
+                    mean_val = float(np.mean(finite_arr)) if len(finite_arr) > 0 else 0.0
+                    median_val = float(np.median(finite_arr)) if len(finite_arr) > 0 else 0.0
+                    win_rate = float(np.mean(finite_arr > 1.0)) if len(finite_arr) > 0 else 0.0
                     f.write(
                         f"{qid},"
-                        f"{np.mean(arr):.4f},"
-                        f"{np.median(arr):.4f},"
+                        f"{mean_val:.4f},"
+                        f"{median_val:.4f},"
                         f"{len(arr)},"
-                        f"{np.mean(arr > 1.0):.4f}\n"
+                        f"{win_rate:.4f}\n"
                     )
             logger.info(f"Query performance report saved to {report_path}")
         except Exception as e:

@@ -68,7 +68,7 @@ class QueryParser:
 
         try:
             parsed = sqlglot.parse_one(sql, dialect=self._dialect)
-        except sqlglot.errors.ParseError as e:
+        except (sqlglot.errors.ParseError, sqlglot.errors.TokenError) as e:
             logger.warning(f"Failed to parse SQL: {e}")
             return result
 

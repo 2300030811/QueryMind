@@ -22,7 +22,6 @@ env/
 # Training artifacts
 checkpoints/
 logs/
-reports/
 wandb/
 runs/
 
