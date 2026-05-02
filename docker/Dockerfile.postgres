@@ -1,0 +1,33 @@
+# ═══════════════════════════════════════════════════════════
+# PostgreSQL 17 + pg_hint_plan — Dockerfile
+# ═══════════════════════════════════════════════════════════
+FROM postgres:17-bookworm
+
+# Install build dependencies for pg_hint_plan
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    postgresql-server-dev-17 \
+    ca-certificates \
+    flex \
+    bison \
+    && rm -rf /var/lib/apt/lists/*
+
+# Build and install pg_hint_plan 1.7.1 from source
+RUN git clone --branch REL17_1_7_1 --depth 1 \
+    https://github.com/ossc-db/pg_hint_plan.git /tmp/pg_hint_plan \
+    && cd /tmp/pg_hint_plan \
+    && make \
+    && make install \
+    && rm -rf /tmp/pg_hint_plan
+
+# Cleanup build dependencies to reduce image size
+RUN apt-get purge -y --auto-remove \
+    build-essential \
+    git \
+    postgresql-server-dev-17 \
+    flex \
+    bison \
+    && rm -rf /var/lib/apt/lists/*
+
+# pg_hint_plan is loaded via shared_preload_libraries in docker-compose.yml

@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "querymind"
+version = "0.1.0"
+description = "RL agent that learns to optimize SQL query execution plans, outperforming PostgreSQL's default planner"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+authors = [
+    {name = "QueryMind Team"},
+]
+keywords = ["reinforcement-learning", "postgresql", "query-optimization", "PPO", "TPC-H"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Database",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "gymnasium==0.29.1",
+    "stable-baselines3==2.3.2",
+    "sqlalchemy==2.0.36",
+    "psycopg2-binary==2.9.10",
+    "sqlglot==25.34.1",
+    "numpy>=1.26,<2.0",
+    "torch>=2.1",
+    "wandb>=0.18",
+    "fastapi==0.115.6",
+    "uvicorn[standard]==0.34.0",
+    "pydantic>=2.0",
+    "rich>=13.0",
+    "typer>=0.12",
+    "scikit-learn>=1.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pre-commit>=4.0",
+]
+
+[project.scripts]
+querymind-train = "querymind.agent.train:main"
+querymind-bench = "querymind.benchmark.runner:main"
+querymind-serve = "querymind.api.main:start"
+
+[tool.setuptools.packages.find]
+include = ["querymind*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
