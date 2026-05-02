@@ -40,20 +40,16 @@ services:
         -c log_min_duration_statement=1000
         -c statement_timeout=60000
 
-  # ── QueryMind Training/Serving ────────────────────────────
-  querymind:
+  # ── QueryMind Agent Services ─────────────────────────────
+  train:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    container_name: querymind-agent
+    container_name: querymind-train
     environment:
       QUERYMIND_DB_URL: postgresql://querymind:querymind@postgres:5432/tpch
       QUERYMIND_MODEL_PATH: /app/checkpoints/querymind_final
-      QUERYMIND_HOST: "0.0.0.0"
-      QUERYMIND_PORT: "8000"
       WANDB_MODE: offline
-    ports:
-      - "8000:8000"
     volumes:
       - ./checkpoints:/app/checkpoints
       - ./logs:/app/logs
@@ -61,7 +57,39 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["python", "-m", "querymind.agent.train"]
+    command: ["querymind-train", "--total-timesteps", "5000"]
+    profiles: ["train"]
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: querymind-api
+    environment:
+      QUERYMIND_DB_URL: postgresql://querymind:querymind@postgres:5432/tpch
+      QUERYMIND_MODEL_PATH: /app/checkpoints/querymind_final
+      QUERYMIND_HOST: "0.0.0.0"
+      QUERYMIND_PORT: "8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./checkpoints:/app/checkpoints
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["querymind-serve"]
+
+  # ── Monitoring Stack ─────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: querymind-prometheus
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - api
 
 volumes:
   pgdata:

@@ -38,6 +38,7 @@ dependencies = [
     "rich>=13.0",
     "typer>=0.12",
     "scikit-learn>=1.5",
+    "prometheus-fastapi-instrumentator>=7.0",
 ]
 
 [project.optional-dependencies]

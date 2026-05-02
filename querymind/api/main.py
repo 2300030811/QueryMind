@@ -33,6 +33,7 @@ from pydantic import BaseModel, Field
 from querymind.env.hint_builder import HintBuilder
 from querymind.featurizer.encoder import QueryFeatureEncoder
 from querymind.featurizer.query_parser import QueryParser
+from prometheus_fastapi_instrumentator import Instrumentator
 
 logger = logging.getLogger(__name__)
 
@@ -143,6 +144,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Instrument for Prometheus metrics
+Instrumentator().instrument(app).expose(app)
 
 
 # ── Endpoints ───────────────────────────────────────────────────────────────
