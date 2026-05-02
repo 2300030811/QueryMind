@@ -27,7 +27,6 @@ from __future__ import annotations
 
 import logging
 import os
-from pathlib import Path
 from typing import Any
 
 import typer
@@ -47,10 +46,10 @@ DEFAULT_CONFIG = {
     "n_steps": 2048,
     "batch_size": 64,
     "n_epochs": 10,
-    "gamma": 1.0,        # single-step episodes → no discounting
+    "gamma": 1.0,  # single-step episodes → no discounting
     "gae_lambda": 0.95,
     "clip_range": 0.2,
-    "ent_coef": 0.01,     # entropy bonus for exploration
+    "ent_coef": 0.01,  # entropy bonus for exploration
     "vf_coef": 0.5,
     "max_grad_norm": 0.5,
     "verbose": 1,
@@ -63,8 +62,10 @@ def _linear_schedule(initial_lr: float) -> Any:
     Returns a function that takes progress_remaining ∈ [1, 0]
     and returns the current learning rate.
     """
+
     def schedule(progress_remaining: float) -> float:
         return progress_remaining * initial_lr
+
     return schedule
 
 
@@ -138,19 +139,21 @@ def train(
     logger.info(f"Training for {total_timesteps} timesteps")
 
     # ── Setup callbacks ─────────────────────────────────────────────────────
-    callbacks = CallbackList([
-        QueryMindCallback(
-            log_dir=log_dir,
-            log_freq=50,
-            use_wandb=use_wandb,
-        ),
-        make_eval_callback(
-            eval_env=eval_env,
-            log_dir=log_dir,
-            eval_freq=5000,
-            n_eval_episodes=len(eval_queries),
-        ),
-    ])
+    callbacks = CallbackList(
+        [
+            QueryMindCallback(
+                log_dir=log_dir,
+                log_freq=50,
+                use_wandb=use_wandb,
+            ),
+            make_eval_callback(
+                eval_env=eval_env,
+                log_dir=log_dir,
+                eval_freq=5000,
+                n_eval_episodes=len(eval_queries),
+            ),
+        ]
+    )
 
     # ── Train ───────────────────────────────────────────────────────────────
     try:

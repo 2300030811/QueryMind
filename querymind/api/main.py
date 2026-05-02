@@ -24,16 +24,15 @@ import time
 from contextlib import asynccontextmanager
 from typing import Any
 
-import numpy as np
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import BaseModel, Field
 
 from querymind.env.hint_builder import HintBuilder
 from querymind.featurizer.encoder import QueryFeatureEncoder
 from querymind.featurizer.query_parser import QueryParser
-from prometheus_fastapi_instrumentator import Instrumentator
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +44,7 @@ _parser: QueryParser = QueryParser()
 
 
 # ── Request/Response schemas ────────────────────────────────────────────────
+
 
 class OptimizeRequest(BaseModel):
     """Request to optimize a SQL query."""
@@ -63,23 +63,15 @@ class OptimizeResponse(BaseModel):
     set_statements: list[str] = Field(
         ..., description="PostgreSQL SET statements to apply the config"
     )
-    optimized_sql: str = Field(
-        ..., description="SQL query with hint prepended (if applicable)"
-    )
-    predicted_speedup: float = Field(
-        ..., description="Predicted speedup ratio vs default planner"
-    )
+    optimized_sql: str = Field(..., description="SQL query with hint prepended (if applicable)")
+    predicted_speedup: float = Field(..., description="Predicted speedup ratio vs default planner")
     action: int = Field(..., description="Internal action index chosen by agent")
-    config: dict[str, bool] = Field(
-        ..., description="Planner knob configuration"
-    )
+    config: dict[str, bool] = Field(..., description="Planner knob configuration")
     query_info: dict[str, Any] = Field(
         default_factory=dict,
         description="Parsed query metadata",
     )
-    inference_time_ms: float = Field(
-        ..., description="Agent inference time in milliseconds"
-    )
+    inference_time_ms: float = Field(..., description="Agent inference time in milliseconds")
 
 
 class HealthResponse(BaseModel):
@@ -91,6 +83,7 @@ class HealthResponse(BaseModel):
 
 
 # ── Lifespan (startup/shutdown) ─────────────────────────────────────────────
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # type: ignore[no-untyped-def]
@@ -151,6 +144,7 @@ Instrumentator().instrument(app).expose(app)
 
 # ── Endpoints ───────────────────────────────────────────────────────────────
 
+
 @app.post("/optimize", response_model=OptimizeResponse)
 async def optimize_query(request: OptimizeRequest) -> OptimizeResponse:
     """Optimize a SQL query by selecting the best planner configuration.
@@ -184,10 +178,7 @@ async def optimize_query(request: OptimizeRequest) -> OptimizeResponse:
     set_stmts = config.to_set_statements()
 
     # Build hint comment
-    knob_str = ", ".join(
-        f"{k}={'ON' if v else 'OFF'}"
-        for k, v in config.to_dict().items()
-    )
+    knob_str = ", ".join(f"{k}={'ON' if v else 'OFF'}" for k, v in config.to_dict().items())
     hint = f"/* QueryMind: {knob_str} */"
 
     # Parse query for metadata
@@ -239,6 +230,7 @@ async def get_stats() -> dict[str, Any]:
 
 
 # ── CLI Entry Point ─────────────────────────────────────────────────────────
+
 
 def start() -> None:
     """Start the QueryMind API server."""

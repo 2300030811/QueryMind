@@ -6,7 +6,7 @@ Uses sqlglot to parse TPC-H queries. No database connection required.
 
 import pytest
 
-from querymind.featurizer.query_parser import QueryParser, ParsedQuery
+from querymind.featurizer.query_parser import ParsedQuery, QueryParser
 
 
 @pytest.fixture

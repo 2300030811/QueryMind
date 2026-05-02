@@ -42,7 +42,6 @@ TPCH_QUERIES: dict[str, str] = {
         GROUP BY l_returnflag, l_linestatus
         ORDER BY l_returnflag, l_linestatus
     """,
-
     "Q6": """
         SELECT SUM(l_extendedprice * l_discount) AS revenue
         FROM lineitem
@@ -51,7 +50,6 @@ TPCH_QUERIES: dict[str, str] = {
           AND l_discount BETWEEN 0.06 - 0.01 AND 0.06 + 0.01
           AND l_quantity < 24
     """,
-
     "Q14": """
         SELECT
             100.00 * SUM(CASE WHEN p_type LIKE 'PROMO%'
@@ -62,9 +60,7 @@ TPCH_QUERIES: dict[str, str] = {
           AND l_shipdate >= DATE '1995-09-01'
           AND l_shipdate < DATE '1995-09-01' + INTERVAL '1 month'
     """,
-
     # ── Join-heavy queries (primary optimization targets) ───────────────────
-
     "Q3": """
         SELECT
             l_orderkey, SUM(l_extendedprice * (1 - l_discount)) AS revenue,
@@ -79,7 +75,6 @@ TPCH_QUERIES: dict[str, str] = {
         ORDER BY revenue DESC, o_orderdate
         LIMIT 10
     """,
-
     "Q4": """
         SELECT o_orderpriority, COUNT(*) AS order_count
         FROM orders
@@ -92,7 +87,6 @@ TPCH_QUERIES: dict[str, str] = {
         GROUP BY o_orderpriority
         ORDER BY o_orderpriority
     """,
-
     "Q5": """
         SELECT
             n_name, SUM(l_extendedprice * (1 - l_discount)) AS revenue
@@ -109,7 +103,6 @@ TPCH_QUERIES: dict[str, str] = {
         GROUP BY n_name
         ORDER BY revenue DESC
     """,
-
     "Q7": """
         SELECT
             supp_nation, cust_nation, l_year,
@@ -134,7 +127,6 @@ TPCH_QUERIES: dict[str, str] = {
         GROUP BY supp_nation, cust_nation, l_year
         ORDER BY supp_nation, cust_nation, l_year
     """,
-
     "Q8": """
         SELECT
             o_year,
@@ -160,7 +152,6 @@ TPCH_QUERIES: dict[str, str] = {
         GROUP BY o_year
         ORDER BY o_year
     """,
-
     "Q9": """
         SELECT
             nation, o_year, SUM(amount) AS sum_profit
@@ -181,7 +172,6 @@ TPCH_QUERIES: dict[str, str] = {
         GROUP BY nation, o_year
         ORDER BY nation, o_year DESC
     """,
-
     "Q10": """
         SELECT
             c_custkey, c_name, SUM(l_extendedprice * (1 - l_discount)) AS revenue,
@@ -197,9 +187,7 @@ TPCH_QUERIES: dict[str, str] = {
         ORDER BY revenue DESC
         LIMIT 20
     """,
-
     # ── Additional queries for broader coverage ─────────────────────────────
-
     "Q2": """
         SELECT
             s_acctbal, s_name, n_name, p_partkey, p_mfgr,
@@ -224,7 +212,6 @@ TPCH_QUERIES: dict[str, str] = {
         ORDER BY s_acctbal DESC, n_name, s_name, p_partkey
         LIMIT 100
     """,
-
     "Q11": """
         SELECT ps_partkey, SUM(ps_supplycost * ps_availqty) AS value
         FROM partsupp, supplier, nation
@@ -241,7 +228,6 @@ TPCH_QUERIES: dict[str, str] = {
         )
         ORDER BY value DESC
     """,
-
     "Q12": """
         SELECT
             l_shipmode,
@@ -259,7 +245,6 @@ TPCH_QUERIES: dict[str, str] = {
         GROUP BY l_shipmode
         ORDER BY l_shipmode
     """,
-
     "Q13": """
         SELECT c_count, COUNT(*) AS custdist
         FROM (
@@ -271,7 +256,6 @@ TPCH_QUERIES: dict[str, str] = {
         GROUP BY c_count
         ORDER BY custdist DESC, c_count DESC
     """,
-
     "Q15": """
         WITH revenue AS (
             SELECT
@@ -288,7 +272,6 @@ TPCH_QUERIES: dict[str, str] = {
           AND total_revenue = (SELECT MAX(total_revenue) FROM revenue)
         ORDER BY s_suppkey
     """,
-
     "Q16": """
         SELECT p_brand, p_type, p_size, COUNT(DISTINCT ps_suppkey) AS supplier_cnt
         FROM partsupp, part
@@ -302,9 +285,7 @@ TPCH_QUERIES: dict[str, str] = {
         GROUP BY p_brand, p_type, p_size
         ORDER BY supplier_cnt DESC, p_brand, p_type, p_size
     """,
-
     # ── Test-only queries (zero-shot generalization) ────────────────────────
-
     "Q17": """
         SELECT SUM(l_extendedprice) / 7.0 AS avg_yearly
         FROM lineitem, part
@@ -317,7 +298,6 @@ TPCH_QUERIES: dict[str, str] = {
               WHERE l_partkey = p_partkey
           )
     """,
-
     "Q18": """
         SELECT c_name, c_custkey, o_orderkey, o_orderdate, o_totalprice,
                SUM(l_quantity)
@@ -332,7 +312,6 @@ TPCH_QUERIES: dict[str, str] = {
         ORDER BY o_totalprice DESC, o_orderdate
         LIMIT 100
     """,
-
     "Q19": """
         SELECT SUM(l_extendedprice * (1 - l_discount)) AS revenue
         FROM lineitem, part
@@ -362,7 +341,6 @@ TPCH_QUERIES: dict[str, str] = {
             AND l_shipinstruct = 'DELIVER IN PERSON'
         )
     """,
-
     "Q20": """
         SELECT s_name, s_address
         FROM supplier, nation
@@ -385,7 +363,6 @@ TPCH_QUERIES: dict[str, str] = {
         AND n_name = 'CANADA'
         ORDER BY s_name
     """,
-
     "Q21": """
         SELECT s_name, COUNT(*) AS numwait
         FROM supplier, lineitem l1, orders, nation
@@ -409,7 +386,6 @@ TPCH_QUERIES: dict[str, str] = {
         ORDER BY numwait DESC, s_name
         LIMIT 100
     """,
-
     "Q22": """
         SELECT cntrycode, COUNT(*) AS numcust, SUM(c_acctbal) AS totacctbal
         FROM (
@@ -419,7 +395,9 @@ TPCH_QUERIES: dict[str, str] = {
               AND c_acctbal > (
                   SELECT AVG(c_acctbal) FROM customer
                   WHERE c_acctbal > 0.00
-                    AND SUBSTRING(c_phone FROM 1 FOR 2) IN ('13', '31', '23', '29', '30', '18', '17')
+                    AND SUBSTRING(c_phone FROM 1 FOR 2) IN (
+                        '13', '31', '23', '29', '30', '18', '17'
+                    )
               )
               AND NOT EXISTS (
                   SELECT * FROM orders WHERE o_custkey = c_custkey
@@ -432,8 +410,22 @@ TPCH_QUERIES: dict[str, str] = {
 
 # ── Train/Test Split ────────────────────────────────────────────────────────
 TRAIN_QUERY_IDS = [
-    "Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8",
-    "Q9", "Q10", "Q11", "Q12", "Q13", "Q14", "Q15", "Q16",
+    "Q1",
+    "Q2",
+    "Q3",
+    "Q4",
+    "Q5",
+    "Q6",
+    "Q7",
+    "Q8",
+    "Q9",
+    "Q10",
+    "Q11",
+    "Q12",
+    "Q13",
+    "Q14",
+    "Q15",
+    "Q16",
 ]
 TEST_QUERY_IDS = ["Q17", "Q18", "Q19", "Q20", "Q21", "Q22"]
 

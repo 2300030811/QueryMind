@@ -127,9 +127,7 @@ class StatsExtractor:
     """)
 
     def __init__(self, db_url: str, schema: str = "public") -> None:
-        self._engine: Engine = create_engine(
-            db_url, pool_size=1, max_overflow=0
-        )
+        self._engine: Engine = create_engine(db_url, pool_size=1, max_overflow=0)
         self._schema = schema
 
     def get_table_stats(self, table_name: str) -> TableStats:
@@ -173,9 +171,9 @@ class StatsExtractor:
 
                 # Compute average row width from column widths
                 if stats.columns:
-                    stats.avg_row_width = sum(
-                        c.avg_width for c in stats.columns
-                    ) / len(stats.columns)
+                    stats.avg_row_width = sum(c.avg_width for c in stats.columns) / len(
+                        stats.columns
+                    )
 
         except Exception as e:
             logger.error(f"Failed to get stats for table '{table_name}': {e}")
@@ -201,9 +199,7 @@ class StatsExtractor:
         """
         try:
             with self._engine.connect() as conn:
-                result = conn.execute(
-                    self._LIST_TABLES_SQL, {"schema": self._schema}
-                )
+                result = conn.execute(self._LIST_TABLES_SQL, {"schema": self._schema})
                 return [row[0] for row in result]
         except Exception as e:
             logger.error(f"Failed to list tables: {e}")

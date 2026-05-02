@@ -14,8 +14,8 @@ from __future__ import annotations
 from typing import Any
 
 import torch
-from torch import nn
 from stable_baselines3.common.policies import ActorCriticPolicy
+from torch import nn
 
 
 class QueryMindNetwork(nn.Module):
@@ -98,6 +98,4 @@ class QueryMindPolicy(ActorCriticPolicy):
 
     def _build_mlp_extractor(self) -> None:
         """Override to use QueryMindNetwork instead of default MLP."""
-        self.mlp_extractor = QueryMindNetwork(
-            feature_dim=self.features_dim
-        )
+        self.mlp_extractor = QueryMindNetwork(feature_dim=self.features_dim)

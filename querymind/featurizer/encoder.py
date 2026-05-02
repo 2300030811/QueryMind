@@ -11,11 +11,10 @@ Padded to a fixed OBS_DIM for consistent Gymnasium observation space.
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 import numpy as np
 
-from querymind.featurizer.query_parser import QueryParser, ParsedQuery
+from querymind.featurizer.query_parser import ParsedQuery, QueryParser
 from querymind.featurizer.stats_extractor import StatsExtractor, TableStats
 
 logger = logging.getLogger(__name__)
@@ -23,9 +22,11 @@ logger = logging.getLogger(__name__)
 # ── Constants ───────────────────────────────────────────────────────────────
 MAX_TABLES = 8
 FEATURES_PER_TABLE = 5  # row_count, page_count, avg_width, avg_n_distinct, avg_correlation
-QUERY_META_DIM = 8      # num_tables, num_joins, has_agg, has_subquery, has_order, has_group, num_predicates, padding
+QUERY_META_DIM = (
+    8  # num_tables, num_joins, has_agg, has_subquery, has_order, has_group, num_predicates, padding
+)
 JOIN_GRAPH_DIM = MAX_TABLES * MAX_TABLES  # flattened adjacency matrix
-PLAN_COST_DIM = 1       # default plan cost from EXPLAIN
+PLAN_COST_DIM = 1  # default plan cost from EXPLAIN
 
 
 class RunningNormalizer:
@@ -80,7 +81,9 @@ class QueryFeatureEncoder:
         self._stats_extractor = StatsExtractor(db_url)
         self._obs_dim = obs_dim
 
-        raw_dim = QUERY_META_DIM + (MAX_TABLES * FEATURES_PER_TABLE) + JOIN_GRAPH_DIM + PLAN_COST_DIM
+        raw_dim = (
+            QUERY_META_DIM + (MAX_TABLES * FEATURES_PER_TABLE) + JOIN_GRAPH_DIM + PLAN_COST_DIM
+        )
         self._normalizer = RunningNormalizer(dim=raw_dim)
 
     def encode(self, sql: str, plan_cost: float = 0.0) -> np.ndarray:
@@ -130,16 +133,18 @@ class QueryFeatureEncoder:
         features: list[float] = []
 
         # ── Query metadata (8 dims) ────────────────────────────────────────
-        features.extend([
-            float(parsed.num_tables),
-            float(parsed.num_joins),
-            float(parsed.has_aggregation),
-            float(parsed.has_subquery),
-            float(parsed.has_order_by),
-            float(parsed.has_group_by),
-            float(len(parsed.predicates)),
-            0.0,  # padding
-        ])
+        features.extend(
+            [
+                float(parsed.num_tables),
+                float(parsed.num_joins),
+                float(parsed.has_aggregation),
+                float(parsed.has_subquery),
+                float(parsed.has_order_by),
+                float(parsed.has_group_by),
+                float(len(parsed.predicates)),
+                0.0,  # padding
+            ]
+        )
 
         # ── Per-table statistics (MAX_TABLES * 5 dims) ─────────────────────
         for i in range(MAX_TABLES):
@@ -147,13 +152,15 @@ class QueryFeatureEncoder:
                 table_name = parsed.tables[i]
                 stats = table_stats.get(table_name)
                 if stats:
-                    features.extend([
-                        np.log1p(stats.row_count),       # log-scaled row count
-                        np.log1p(stats.page_count),      # log-scaled page count
-                        stats.avg_row_width,
-                        stats.avg_n_distinct,
-                        stats.avg_correlation,
-                    ])
+                    features.extend(
+                        [
+                            np.log1p(stats.row_count),  # log-scaled row count
+                            np.log1p(stats.page_count),  # log-scaled page count
+                            stats.avg_row_width,
+                            stats.avg_n_distinct,
+                            stats.avg_correlation,
+                        ]
+                    )
                 else:
                     features.extend([0.0] * FEATURES_PER_TABLE)
             else:

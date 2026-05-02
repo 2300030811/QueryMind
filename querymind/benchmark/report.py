@@ -13,8 +13,6 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-import numpy as np
-
 from querymind.benchmark.runner import BenchmarkResults
 
 logger = logging.getLogger(__name__)
@@ -61,8 +59,8 @@ class ReportGenerator:
             "",
             "## Summary",
             "",
-            f"| Metric | Value |",
-            f"|--------|-------|",
+            "| Metric | Value |",
+            "|--------|-------|",
             f"| Geometric Mean Speedup | **{gmean:.3f}x** |",
             f"| Win Rate (vs PG Default) | **{win_rate:.1%}** |",
             f"| Worst-Case Ratio | {worst:.3f}x |",
@@ -81,27 +79,27 @@ class ReportGenerator:
             ratio = ratios.get(qid, 0)
 
             emoji = "✅" if ratio > 1.0 else "❌" if ratio < 1.0 else "➖"
-            lines.append(
-                f"| {qid} | {pg:.1f} | {geqo:.1f} | {agent:.1f} | {emoji} {ratio:.2f}x |"
-            )
+            lines.append(f"| {qid} | {pg:.1f} | {geqo:.1f} | {agent:.1f} | {emoji} {ratio:.2f}x |")
 
-        lines.extend([
-            "",
-            "## Methodology",
-            "",
-            "- **Database**: PostgreSQL 17 with pg_hint_plan 1.7.1",
-            "- **Dataset**: TPC-H SF=1 (1GB)",
-            "- **Agent**: PPO (Stable-Baselines3), Discrete(64) action space",
-            "- **Reward**: baseline_latency / agent_latency, clipped to [-2, 5]",
-            f"- **Timing**: Median of 5 runs after 2 warmup executions",
-            "",
-            "## References",
-            "",
-            "1. Bao: Learning to Steer Query Optimizers (Marcus et al., 2021)",
-            "2. DQ: Deep Reinforcement Learning for Join Order Selection (2019)",
-            "3. Neo: A Learned Query Optimizer (2021)",
-            "4. Marcus et al., Towards a Learned Query Optimizer (CIDR 2019)",
-        ])
+        lines.extend(
+            [
+                "",
+                "## Methodology",
+                "",
+                "- **Database**: PostgreSQL 17 with pg_hint_plan 1.7.1",
+                "- **Dataset**: TPC-H SF=1 (1GB)",
+                "- **Agent**: PPO (Stable-Baselines3), Discrete(64) action space",
+                "- **Reward**: baseline_latency / agent_latency, clipped to [-2, 5]",
+                "- **Timing**: Median of 5 runs after 2 warmup executions",
+                "",
+                "## References",
+                "",
+                "1. Bao: Learning to Steer Query Optimizers (Marcus et al., 2021)",
+                "2. DQ: Deep Reinforcement Learning for Join Order Selection (2019)",
+                "3. Neo: A Learned Query Optimizer (2021)",
+                "4. Marcus et al., Towards a Learned Query Optimizer (CIDR 2019)",
+            ]
+        )
 
         report = "\n".join(lines)
 
@@ -125,8 +123,7 @@ class ReportGenerator:
             for r in results.query_results:
                 action_str = str(r.action) if r.action is not None else ""
                 f.write(
-                    f"{r.query_id},{r.config_name},{r.latency_ms:.2f},"
-                    f"{action_str},{r.success}\n"
+                    f"{r.query_id},{r.config_name},{r.latency_ms:.2f},{action_str},{r.success}\n"
                 )
 
         logger.info(f"CSV export saved to {csv_path}")

@@ -10,7 +10,6 @@ import pytest
 from querymind.env.hint_builder import (
     ACTION_SPACE_SIZE,
     NUM_KNOBS,
-    PLANNER_KNOBS,
     HintBuilder,
     PlannerConfig,
 )
@@ -102,11 +101,7 @@ class TestHintBuilder:
         """Every valid action must have at least one join and one scan method."""
         for action in builder.valid_actions:
             config = builder.decode_action(action)
-            has_join = (
-                config.enable_hashjoin
-                or config.enable_mergejoin
-                or config.enable_nestloop
-            )
+            has_join = config.enable_hashjoin or config.enable_mergejoin or config.enable_nestloop
             has_scan = config.enable_seqscan or config.enable_indexscan
             assert has_join, f"Action {action} has no join method"
             assert has_scan, f"Action {action} has no scan type"

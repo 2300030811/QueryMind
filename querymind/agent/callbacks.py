@@ -157,10 +157,12 @@ class QueryMindCallback(BaseCallback):
 
             final_metrics = {
                 "final/mean_ratio": float(np.mean(clean_ratios)) if len(clean_ratios) > 0 else 0.0,
-                "final/median_ratio": float(np.median(clean_ratios)) if len(clean_ratios) > 0 else 0.0,
-                "final/win_rate": float(
-                    np.mean(clean_ratios > 1.0)
-                ) if len(clean_ratios) > 0 else 0.0,
+                "final/median_ratio": float(np.median(clean_ratios))
+                if len(clean_ratios) > 0
+                else 0.0,
+                "final/win_rate": float(np.mean(clean_ratios > 1.0))
+                if len(clean_ratios) > 0
+                else 0.0,
                 "final/total_episodes": self._episode_count,
             }
             logger.info(f"Training complete: {final_metrics}")
@@ -185,13 +187,7 @@ class QueryMindCallback(BaseCallback):
                     mean_val = float(np.mean(finite_arr)) if len(finite_arr) > 0 else 0.0
                     median_val = float(np.median(finite_arr)) if len(finite_arr) > 0 else 0.0
                     win_rate = float(np.mean(finite_arr > 1.0)) if len(finite_arr) > 0 else 0.0
-                    f.write(
-                        f"{qid},"
-                        f"{mean_val:.4f},"
-                        f"{median_val:.4f},"
-                        f"{len(arr)},"
-                        f"{win_rate:.4f}\n"
-                    )
+                    f.write(f"{qid},{mean_val:.4f},{median_val:.4f},{len(arr)},{win_rate:.4f}\n")
             logger.info(f"Query performance report saved to {report_path}")
         except Exception as e:
             logger.error(f"Failed to save query report: {e}")

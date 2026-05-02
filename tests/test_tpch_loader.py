@@ -7,8 +7,8 @@ import pytest
 from querymind.benchmark.tpch_loader import (
     JOIN_HEAVY_IDS,
     TEST_QUERY_IDS,
-    TRAIN_QUERY_IDS,
     TPCH_QUERIES,
+    TRAIN_QUERY_IDS,
     TPCHLoader,
 )
 

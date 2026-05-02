@@ -22,7 +22,6 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -76,27 +75,21 @@ class BenchmarkResults:
                 ratios[qid] = bl[qid] / ag[qid]
         return ratios
 
-    def geometric_mean_ratio(
-        self, baseline: str = "pg_default", agent: str = "querymind"
-    ) -> float:
+    def geometric_mean_ratio(self, baseline: str = "pg_default", agent: str = "querymind") -> float:
         """Geometric mean of latency ratios."""
         ratios = self.compute_ratios(baseline, agent)
         if not ratios:
             return 0.0
         return float(np.exp(np.mean(np.log(list(ratios.values())))))
 
-    def win_rate(
-        self, baseline: str = "pg_default", agent: str = "querymind"
-    ) -> float:
+    def win_rate(self, baseline: str = "pg_default", agent: str = "querymind") -> float:
         """Fraction of queries where agent beats baseline."""
         ratios = self.compute_ratios(baseline, agent)
         if not ratios:
             return 0.0
         return float(np.mean([r > 1.0 for r in ratios.values()]))
 
-    def worst_case_overhead(
-        self, baseline: str = "pg_default", agent: str = "querymind"
-    ) -> float:
+    def worst_case_overhead(self, baseline: str = "pg_default", agent: str = "querymind") -> float:
         """Maximum slowdown (ratio < 1 means agent is slower)."""
         ratios = self.compute_ratios(baseline, agent)
         if not ratios:
@@ -164,20 +157,16 @@ class BenchmarkRunner:
         results = BenchmarkResults()
         console.print(f"\n[bold cyan]Running benchmark on {len(queries)} queries[/bold cyan]\n")
 
-        for sql, qid in zip(queries, query_ids):
+        for sql, qid in zip(queries, query_ids, strict=False):
             console.print(f"[yellow]Benchmarking {qid}...[/yellow]")
 
             # ── Baseline 1: PostgreSQL default ──────────────────────────────
             default_latency = self._run_query_timed(sql, "pg_default")
-            results.query_results.append(
-                QueryResult(qid, default_latency, "pg_default")
-            )
+            results.query_results.append(QueryResult(qid, default_latency, "pg_default"))
 
             # ── Baseline 2: GEQO disabled ──────────────────────────────────
             geqo_latency = self._run_with_geqo_disabled(sql)
-            results.query_results.append(
-                QueryResult(qid, geqo_latency, "pg_no_geqo")
-            )
+            results.query_results.append(QueryResult(qid, geqo_latency, "pg_no_geqo"))
 
             # ── Baseline 3: Random action ───────────────────────────────────
             random_action = int(np.random.choice(self._hint_builder.valid_actions))

@@ -28,7 +28,6 @@ jobs:
 
       - name: Lint with ruff
         run: |
-          pip install ruff
           ruff check querymind/ tests/
 
       - name: Type check with mypy

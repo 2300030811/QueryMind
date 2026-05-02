@@ -89,9 +89,7 @@ class QueryParser:
             if on_clause:
                 left = on_clause.left
                 right = on_clause.right
-                result.join_conditions.append(
-                    (str(left), "=", str(right))
-                )
+                result.join_conditions.append((str(left), "=", str(right)))
 
         # ── Extract WHERE predicates ────────────────────────────────────────
         where = parsed.find(exp.Where)
