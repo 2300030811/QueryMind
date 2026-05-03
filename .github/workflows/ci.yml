@@ -28,7 +28,7 @@ jobs:
 
       - name: Lint with ruff
         run: |
-          ruff check querymind/ tests/
+          ruff check querymind/ tests/ --output-format=github
 
       - name: Type check with mypy
         run: |
